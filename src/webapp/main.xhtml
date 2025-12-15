@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
+<h:head>
+    <title>Основная страница</title>
+    <h:outputStylesheet name="css/main.css"/>
+</h:head>
+<h:body>
+
+
+    <div class="input-and-graph">
+        <div class="glass-container users-choice">
+            <h:form id="mainForm">
+                <label>Выберите X</label>
+                <div class="choice-x">
+                    <h:commandButton value="-4" action="#{pointBean.setX(-4)}" styleClass="glass-option #{pointBean.x == -4 ? 'active' : ''}">
+                        <f:ajax execute="@this" render="@none"/>
+                    </h:commandButton>
+                    <h:commandButton value="-3" action="#{pointBean.setX(-3)}" styleClass="glass-option #{pointBean.x == -3 ? 'active' : ''}">
+                        <f:ajax execute="@this" render="@none"/>
+                    </h:commandButton>
+                    <h:commandButton value="-2" action="#{pointBean.setX(-2)}" styleClass="glass-option #{pointBean.x == -2 ? 'active' : ''}">
+                        <f:ajax execute="@this" render="@none"/>
+                    </h:commandButton>
+                    <h:commandButton value="-1" action="#{pointBean.setX(-1)}" styleClass="glass-option #{pointBean.x == -1 ? 'active' : ''}">
+                        <f:ajax execute="@this" render="@none"/>
+                    </h:commandButton>
+                    <h:commandButton value="0" action="#{pointBean.setX(0)}" styleClass="glass-option #{pointBean.x == 0 ? 'active' : ''}">
+                        <f:ajax execute="@this" render="@none"/>
+                    </h:commandButton>
+                    <h:commandButton value="1" action="#{pointBean.setX(1)}" styleClass="glass-option #{pointBean.x == 1 ? 'active' : ''}">
+                        <f:ajax execute="@this" render="@none"/>
+                    </h:commandButton>
+                    <h:commandButton value="2" action="#{pointBean.setX(2)}" styleClass="glass-option #{pointBean.x == 2 ? 'active' : ''}">
+                        <f:ajax execute="@this" render="@none"/>
+                    </h:commandButton>
+                    <h:commandButton value="3" action="#{pointBean.setX(3)}" styleClass="glass-option #{pointBean.x == 3 ? 'active' : ''}">
+                        <f:ajax execute="@this" render="@none"/>
+                    </h:commandButton>
+                    <h:commandButton value="4" action="#{pointBean.setX(4)}" styleClass="glass-option #{pointBean.x == 4 ? 'active' : ''}">
+                        <f:ajax execute="@this" render="@none"/>
+                    </h:commandButton>
+                </div>
+
+                <h:panelGroup rendered="#{pointBean.x == null or pointBean.x.isNaN()}">
+                    <div class="field-error">Выберите значение X!</div>
+                </h:panelGroup>
+
+                <div class="choice-y">
+                    <label>Введите Y</label>
+                    <h:inputText id="input-y" value="#{pointBean.y}" styleClass="glass-input"
+                                 p:placeholder="От -5 до 5"
+                                 required="true"
+                                 requiredMessage="Введите значение Y!"
+                                 validatorMessage="Y должен быть числом от -5 до 5">
+                        <f:validateDoubleRange minimum="-5" maximum="5"/>
+                    </h:inputText>
+                    <h:message for="input-y" styleClass="field-error"/>
+                </div>
+
+                <label>Выберите R</label>
+                <div class="choice-r">
+                    <div class="choice-r">
+                        <h:commandButton value="1" action="#{pointBean.setRadius(1)}" styleClass="glass-option #{pointBean.radius == 1 ? 'active' : ''}">
+                            <f:ajax execute="@this" render=":resultsForm:table errorDisplay"/>
+                        </h:commandButton>
+                        <h:commandButton value="1.5" action="#{pointBean.setRadius(1.5)}" styleClass="glass-option #{pointBean.radius == 1.5 ? 'active' : ''}">
+                            <f:ajax execute="@this" render=":resultsForm:table errorDisplay"/>
+                        </h:commandButton>
+                        <h:commandButton value="2" action="#{pointBean.setRadius(2)}" styleClass="glass-option #{pointBean.radius == 2 ? 'active' : ''}">
+                            <f:ajax execute="@this" render=":resultsForm:table errorDisplay"/>
+                        </h:commandButton>
+                        <h:commandButton value="2.5" action="#{pointBean.setRadius(2.5)}" styleClass="glass-option #{pointBean.radius == 2.5 ? 'active' : ''}">
+                            <f:ajax execute="@this" render=":resultsForm:table errorDisplay"/>
+                        </h:commandButton>
+                        <h:commandButton value="3" action="#{pointBean.setRadius(3)}" styleClass="glass-option #{pointBean.radius == 3 ? 'active' : ''}">
+                            <f:ajax execute="@this" render=":resultsForm:table errorDisplay"/>
+                        </h:commandButton>
+                    </div>
+                </div>
+
+                <h:panelGroup rendered="#{pointBean.radius == null or pointBean.radius.isNaN()}">
+                    <div class="field-error">Выберите радиус R!</div>
+                </h:panelGroup>
+
+                <div id="errorDisplay">
+                    <h:messages globalOnly="true" styleClass="error-messages"/>
+                </div>
+
+                <div class="helper">
+                    <h:commandButton value="Отправить" action="#{pointBean.submit}" styleClass="glass-button"
+                                     onclick="return validateMainForm()">
+                        <f:ajax execute="@form" render=":resultsForm:table errorDisplay" onevent="handleFormSubmit"/>
+                    </h:commandButton>
+                    <h:commandButton value="Очистить" action="#{pointBean.clear}" styleClass="glass-button secondary">
+                        <f:ajax execute="@this" render=":mainForm :resultsForm:table errorDisplay" onevent="handleClear"/>
+                    </h:commandButton>
+                </div>
+            </h:form>
+
+        </div>
+
+        <div class="graph">
+            <h3>Координатная плоскость</h3>
+            <svg id="svg" data-r-value="#{pointBean.radius}" xmlns="http://www.w3.org/2000/svg" width="300" height="300" class="svg-graph">
+                <line x1="0" x2="300" y1="150" y2="150" stroke="black" stroke-width="2"/>
+                <line x1="150" x2="150" y1="0" y2="300" stroke="black" stroke-width="2"/>
+                <text x="285" y="135" font-size="14">X</text>
+                <text x="160" y="15" font-size="14">Y</text>
+                <polygon points="150,0 145,15 155,15" fill="black"/>
+                <polygon points="300,150 285,145 285,155" fill="black"/>
+
+
+                <path d="M 150 150 L 150 50 A 100 100 0 0 1 250 150 Z" fill="#6f8ab7" fill-opacity="0.5"/>
+                <polygon points="150,150 50,150 150,50" fill="#6f8ab7" fill-opacity="0.5"/>
+                <rect x="50" y="150" width="100" height="100" fill="#6f8ab7" fill-opacity="0.5"/>
+
+
+                <line x1="50" x2="50" y1="143" y2="157" stroke="black" stroke-width="2"/>
+                <line x1="100" x2="100" y1="145" y2="155" stroke="black" stroke-width="1"/>
+                <line x1="200" x2="200" y1="145" y2="155" stroke="black" stroke-width="1"/>
+                <line x1="250" x2="250" y1="143" y2="157" stroke="black" stroke-width="2"/>
+                <line x1="143" x2="157" y1="50" y2="50" stroke="black" stroke-width="2"/>
+                <line x1="145" x2="155" y1="100" y2="100" stroke="black" stroke-width="1"/>
+                <line x1="145" x2="155" y1="200" y2="200" stroke="black" stroke-width="1"/>
+                <line x1="143" x2="157" y1="250" y2="250" stroke="black" stroke-width="2"/>
+
+                <text x="40" y="138" font-size="12" id="x-neg-r">-R</text>
+                <text x="85" y="138" font-size="10" id="x-neg-r2">-R/2</text>
+                <text x="190" y="138" font-size="10" id="x-pos-r2">R/2</text>
+                <text x="245" y="138" font-size="12" id="x-pos-r">R</text>
+                <text x="162" y="54" font-size="12" id="y-pos-r">R</text>
+                <text x="162" y="104" font-size="10" id="y-pos-r2">R/2</text>
+                <text x="162" y="204" font-size="10" id="y-neg-r2">-R/2</text>
+                <text x="162" y="254" font-size="12" id="y-neg-r">-R</text>
+
+                <g id="pointsContainer"></g>
+            </svg>
+            <div id="graphError" class="error-message" style="display: none;">
+                <span id="graphErrorText"></span>
+            </div>
+        </div>
+    </div>
+
+
+    <h:form id="graphForm">
+        <h:inputHidden id="graphX" value="#{pointBean.graphX}"/>
+        <h:inputHidden id="graphY" value="#{pointBean.graphY}"/>
+        <h:commandButton id="graphSubmit" action="#{pointBean.submitFromGraph}" style="display: none">
+            <f:ajax execute="@form" render=":resultsForm:table errorDisplay" onevent="handleFormSubmit"/>
+        </h:commandButton>
+    </h:form>
+
+
+    <div class="return-button">
+        <h:button value="Стартовая страница" outcome="index" styleClass="glass-button"/>
+    </div>
+
+
+    <div class="table-container">
+        <h:form id="resultsForm">
+            <h:dataTable id="table" value="#{pointBean.results}" var="result" styleClass="table">
+                <h:column><f:facet name="header">X</f:facet>#{result.x}</h:column>
+                <h:column><f:facet name="header">Y</f:facet>#{result.y}</h:column>
+                <h:column><f:facet name="header">R</f:facet>#{result.r}</h:column>
+                <h:column><f:facet name="header">Время</f:facet>#{result.formattedTimestamp}</h:column>
+                <h:column><f:facet name="header">Результат</f:facet>
+                    <h:outputText value="#{result.hit ? '✓ Попадание' : '✗ Не попал'}"
+                                  style="color: #{result.hit ? '#2ecc71' : '#e74c3c'}; font-weight: bold;"/>
+                </h:column>
+            </h:dataTable>
+        </h:form>
+    </div>
+
+    <h:outputScript name="js/main.js"/>
+    <h:outputScript name="js/dop.js" target="body" />
+</h:body>
+</html>
