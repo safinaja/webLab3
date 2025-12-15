@@ -1,0 +1,99 @@
+package org.example._web.model;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+@Entity
+@Table(name = "area_results")
+@NamedQueries({
+        @NamedQuery(name = "Result.findAll", query = "SELECT r FROM Result r ORDER BY r.timestamp DESC"),
+        @NamedQuery(name = "Result.clearAll", query = "DELETE FROM Result")
+})
+public class Result {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "x_value", nullable = false)
+    private double x;
+
+    @Column(name = "y_value", nullable = false)
+    private double y;
+
+    @Column(name = "r_value", nullable = false)
+    private double r;
+
+    @Column(name = "timestamp_value", nullable = false)
+    private LocalDateTime timestamp;
+
+    @Column(name = "hit_value", nullable = false)
+    private boolean hit;
+
+
+    public Result() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public double getR() {
+        return r;
+    }
+
+    public void setR(double r) {
+        this.r = r;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getFormattedTimestamp() {
+        return timestamp.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+    }
+
+    public boolean isHit() {
+        return hit;
+    }
+
+    public void setHit(boolean hit) {
+        this.hit = hit;
+    }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "id=" + id +
+                ", x=" + x +
+                ", y=" + y +
+                ", r=" + r +
+                ", timestamp=" + getFormattedTimestamp() +
+                ", hit=" + hit +
+                '}';
+    }
+}
