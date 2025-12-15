@@ -1,0 +1,170 @@
+package org.example._web.ManagedBeans;
+
+import org.example._web.Service.AreaCheckService;
+import org.example._web.hibernate.ResultDao;
+import org.example._web.model.Result;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+@Named("pointBean")
+@SessionScoped
+public class PointsBean implements Serializable {
+
+
+    private static final Logger log = Logger.getLogger(PointsBean.class.getName());
+
+    private Double x;
+    private Double y = 0.0;
+    private Double r = 1.0;
+    private Double graphX;
+    private Double graphY;
+    private String errorMessage;
+
+    private final List<Result> results = new ArrayList<>();
+
+    @Inject
+    private ResultDao resultDao;
+
+
+    public Double getX() { return x; }
+    public void setX(Double x) { this.x = x; this.errorMessage = null; }
+
+    public Double getY() { return y; }
+    public void setY(Double y) { this.y = y; this.errorMessage = null; }
+
+    public Double getRadius() { return r; }
+    public void setRadius(Double r) { this.r = r; this.errorMessage = null; }
+
+    public Double getGraphX() { return graphX; }
+    public void setGraphX(Double graphX) { this.graphX = graphX; }
+
+    public Double getGraphY() { return graphY; }
+    public void setGraphY(Double graphY) { this.graphY = graphY; }
+
+    public String getErrorMessage() { return errorMessage; }
+    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
+    public List<Result> getResults() { return results; }
+
+
+    public void setX(double xValue) {
+        this.x = xValue;
+        this.errorMessage = null;
+    }
+
+    public void setRadius(double rValue) {
+        this.r = rValue;
+        this.errorMessage = null;
+    }
+
+
+    public void submit() {
+        if (!validateInputs()) return;
+        boolean hit = AreaCheckService.checkHit(x, y, r);
+        Result result = createResult(x, y, r, hit);
+        resultDao.save(result);
+        addResult(result);
+        this.errorMessage = null;
+    }
+
+    public void submitFromGraph() {
+        if (graphX == null || graphY == null) {
+            setErrorMessage("Неверные координаты с графика");
+            addFacesMessage("Ошибка", "Неверные координаты с графика");
+            return;
+        }
+        if (r == null) {
+            setErrorMessage("Выберите радиус R!");
+            addFacesMessage("Ошибка валидации", "Выберите радиус R!");
+            return;
+        }
+        boolean hit = AreaCheckService.checkHit(graphX, graphY, r);
+        Result result = createResult(graphX, graphY, r, hit);
+        resultDao.save(result);
+        addResult(result);
+        this.errorMessage = null;
+    }
+
+    public void clear() {
+        this.x = null;
+        this.y = 0.0;
+        this.r = 1.0;
+        this.graphX = null;
+        this.graphY = null;
+        this.errorMessage = null;
+    }
+
+    public void clearResults() {
+        results.clear();
+        resultDao.clearAll();
+    }
+
+
+    @PostConstruct
+    public void init() {
+        try {
+            resultDao.clearAll();
+            List<Result> savedResults = resultDao.findAll();
+            results.clear();
+            results.addAll(savedResults);
+            log.info("Загружено " + savedResults.size() + " результатов из БД");
+        } catch (Exception e) {
+            log.severe("Ошибка при загрузке результатов из БД: " + e.getMessage());
+        }
+    }
+
+
+    private boolean validateInputs() {
+        if (x == null) {
+            setErrorMessage("Выберите значение X!");
+            addFacesMessage("Ошибка валидации", "Выберите значение X!");
+            return false;
+        }
+        if (y == null) {
+            setErrorMessage("Введите значение Y!");
+            addFacesMessage("Ошибка валидации", "Введите значение Y!");
+            return false;
+        }
+        if (y < -5 || y > 5) {
+            setErrorMessage("Y должен быть между -5 и 5");
+            addFacesMessage("Ошибка валидации", "Y должен быть между -5 и 5");
+            return false;
+        }
+        if (r == null) {
+            setErrorMessage("Выберите радиус R!");
+            addFacesMessage("Ошибка валидации", "Выберите радиус R!");
+            return false;
+        }
+        return true;
+    }
+
+
+    private Result createResult(double x, double y, double r, boolean hit) {
+        Result result = new Result();
+        result.setX(x);
+        result.setY(y);
+        result.setR(r);
+        result.setTimestamp(LocalDateTime.now());
+        result.setHit(hit);
+        return result;
+    }
+
+    private void addResult(Result result) {
+        results.add(0, result);
+    }
+
+    private void addFacesMessage(String summary, String detail) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, summary, detail));
+    }
+
+}
