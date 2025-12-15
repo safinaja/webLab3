@@ -1,0 +1,38 @@
+package org.example._web.hibernate;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import org.example._web.model.Result;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import java.io.Serializable;
+import java.util.List;
+import java.util.logging.Logger;
+
+@ApplicationScoped
+public class ResultDao implements Serializable {
+
+    private static final Logger log = Logger.getLogger(ResultDao.class.getName());
+
+    @PersistenceContext(unitName = "3webPU")
+    private EntityManager em;
+
+    public void save(Result result) {
+        em.persist(result);
+        log.info("Результат сохранен в БД: " + result);
+    }
+
+    public List<Result> findAll() {
+        TypedQuery<Result> query = em.createNamedQuery("Result.findAll", Result.class);
+        return query.getResultList();
+    }
+
+    public void clearAll() {
+        em.createNamedQuery("Result.clearAll").executeUpdate();
+        log.info("Все результаты удалены из БД");
+    }
+
+    public long getCount() {
+        return em.createQuery("SELECT COUNT(r) FROM Result r", Long.class).getSingleResult();
+    }
+}
