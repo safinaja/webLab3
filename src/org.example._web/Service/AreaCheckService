@@ -1,0 +1,28 @@
+package org.example._web.Service;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
+
+@Named
+@ApplicationScoped
+public class AreaCheckService {
+
+    public static boolean checkHit(double x, double y, double r) {
+
+        if (x >= 0 && y >= 0) {
+            return x * x + y * y <= r * r;
+        }
+
+        else if (x <= 0 && y >= 0) {
+            return y <= r && x >= -r && y <= x + r;
+        }
+
+        else if (x <= 0 && y <= 0) {
+            return x >= -r && y >= -r;
+        }
+
+        else {
+            return false;
+        }
+    }
+}
